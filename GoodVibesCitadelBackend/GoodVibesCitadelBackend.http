@@ -1,0 +1,6 @@
+@GoodVibesCitadelBackend_HostAddress = http://localhost:5130
+
+GET {{GoodVibesCitadelBackend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
