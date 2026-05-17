@@ -10,6 +10,9 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     
     public DbSet<Character> Characters { get; set; }
+    
+    public DbSet<Composition> Compositions { get; set; }
+    
     public DbSet<Class> Classes { get; set; }
     
     public DbSet<Event> Events { get; set; }
@@ -21,5 +24,6 @@ public class AppDbContext : IdentityDbContext<AppUser>
         modelBuilder.Entity<Class>().ToTable("class");
         modelBuilder.Entity<Character>().ToTable("characters");
         modelBuilder.Entity<Event>().ToTable("event");
+        modelBuilder.Entity<Composition>().ToTable("composition");
     }
 }

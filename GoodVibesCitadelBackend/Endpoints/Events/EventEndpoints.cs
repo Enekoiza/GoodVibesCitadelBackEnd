@@ -1,5 +1,6 @@
 ﻿namespace GoodVibesCitadelBackend.Endpoints.Events;
 
+using Domain.Dto;
 using Domain.Entities;
 using Infrastructure.Ef;
 using Microsoft.AspNetCore.Identity;

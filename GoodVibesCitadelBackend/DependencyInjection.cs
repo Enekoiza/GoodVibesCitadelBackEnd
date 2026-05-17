@@ -1,12 +1,12 @@
-﻿namespace Infrastructure;
+﻿namespace GoodVibesCitadelBackend;
 
+using ApplicationService;
 using Domain.Entities;
-using Ef;
+using Infrastructure;
+using Infrastructure.Ef;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjection
 {
@@ -26,6 +26,9 @@ public static class DependencyInjection
         services.AddScoped<IUpdatePasswordTemporaryFlag, EfUpdatePasswordTemporaryFlag>();
         services.AddScoped<IAddNewEvent, EfAddNewEvent>();
         services.AddScoped<IGetAllEvents, EfGetAllEvents>();
+        services.AddScoped<IGetAllPartyCompositions, EfGetAllPartyCompositions>();
+        services.AddScoped<IGetAllPartyCompositions, EfGetAllPartyCompositions>();
+        services.AddScoped<ICompositionValidation, CompositionValidation>();
 
         services.AddIdentity<AppUser, IdentityRole>(options =>
             {

@@ -20,7 +20,7 @@ public class EfGetAllCharacters : IGetAllCharacters
             .GroupBy(c => c.User.UserName)
             .ToDictionary(
                 group => group.Key,
-                group => group.Select(c => new CharacterInfo(c.Name, c.Class.Name)).ToList()
+                group => group.Select(c => new CharacterInfo(c.Name, c.Class.Name, c.Class.Type)).ToList()
             );
     }
 }

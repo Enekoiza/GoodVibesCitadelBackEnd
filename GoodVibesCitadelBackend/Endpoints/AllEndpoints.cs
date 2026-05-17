@@ -2,6 +2,7 @@
 
 using Auth;
 using Events;
+using PartyBuilder;
 using Roles;
 using Users;
 
@@ -13,6 +14,7 @@ public static class AllEndpoints
         app.MapUserEndpoints();
         app.MapRoleEndpoints();
         app.MapEventEndpoints();
+        app.MapPartyBuilderEndpoints();
 
         return app;
     }

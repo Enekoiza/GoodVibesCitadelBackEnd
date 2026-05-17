@@ -1,6 +1,6 @@
 using Azure.Identity;
+using GoodVibesCitadelBackend;
 using GoodVibesCitadelBackend.Endpoints;
-using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
