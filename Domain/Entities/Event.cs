@@ -2,7 +2,7 @@
 
 public class Event
 {
-    public long Id { get; set; }
+    public int Id { get; set; }
 
     public string EventType { get; set; } = null!;
 
@@ -15,4 +15,6 @@ public class Event
     public string Name { get; set; }
 
     public virtual AppUser User { get; set; } = null!;
+    
+    public List<PartyCompositionEntity>? PartyComposition { get; set; }
 }

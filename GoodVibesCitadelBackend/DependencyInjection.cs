@@ -3,6 +3,7 @@
 using ApplicationService;
 using Domain.Entities;
 using Infrastructure;
+using Infrastructure.Configuration;
 using Infrastructure.Ef;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -21,7 +22,12 @@ public static class DependencyInjection
 
         services.AddSingleton(TimeProvider.System);
 
+        services.Configure<CharacterPasswordProtectionOptions>(
+            configuration.GetSection(CharacterPasswordProtectionOptions.SectionName));
+
         services.AddScoped<IGetAllCharacters, EfGetAllCharacters>();
+        services.AddDataProtection();
+        services.AddScoped<ICharacterPasswordProtector, CharacterPasswordProtector>();
         services.AddScoped<IUpdatedCharacterInformation, EfUpdateCharacterInformation>();
         services.AddScoped<IUpdatePasswordTemporaryFlag, EfUpdatePasswordTemporaryFlag>();
         services.AddScoped<IAddNewEvent, EfAddNewEvent>();
@@ -29,11 +35,20 @@ public static class DependencyInjection
         services.AddScoped<IGetAllPartyCompositions, EfGetAllPartyCompositions>();
         services.AddScoped<IGetAllPartyCompositions, EfGetAllPartyCompositions>();
         services.AddScoped<ICompositionValidation, CompositionValidation>();
+        services.AddScoped<IAddNewEventPartyCombination, EfAddNewEventPartyCombination>();
+        services.AddScoped<IGetAllEventsProcessor, GetAllEventsProcessor>();
 
         services.AddIdentity<AppUser, IdentityRole>(options =>
             {
                 options.User.RequireUniqueEmail = false;
                 options.SignIn.RequireConfirmedEmail = false;
+                
+                options.Password.RequiredLength = 6;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequiredUniqueChars = 1;
             })
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<AppDbContext>();

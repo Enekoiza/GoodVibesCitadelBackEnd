@@ -1,6 +1,6 @@
 ﻿namespace Infrastructure.Ef;
 
-using Domain.Dto;
+using Domain.Models;
 
 public class EfAddNewEvent : IAddNewEvent
 {

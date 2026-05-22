@@ -7,5 +7,6 @@ public enum PartyType
     Pvp,
     Siege,
     Raid,
+    EpicRaid,
     Support
 }

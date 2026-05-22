@@ -2,4 +2,4 @@
 
 using Shared.DTO;
 
-public record UsernameAndCharacterInfoDto(string Username, List<CharacterInfo> Characters);
+public record UsernameAndCharacterInfoDto(string Username, List<CharacterInfoUpdate> Characters);

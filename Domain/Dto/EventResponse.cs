@@ -1,3 +1,9 @@
 ﻿namespace Domain.Dto;
 
-public record EventResponse(string Username, DateTime EventTime, string EventName, string EventType);
+public record EventResponse(
+    string Username, 
+    DateTime EventTime, 
+    string EventName, 
+    string EventType, 
+    int EventId,
+    IEnumerable<PartyCompositionResponseDto> Parties);

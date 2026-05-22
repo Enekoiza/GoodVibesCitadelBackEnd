@@ -1,11 +1,12 @@
 ﻿namespace GoodVibesCitadelBackend.Endpoints.Events;
 
+using ApplicationService;
 using Domain.Dto;
 using Domain.Entities;
+using Domain.Models;
 using Infrastructure.Ef;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Users.DTOs;
 
 public static class EventEndpoints
 {
@@ -16,6 +17,7 @@ public static class EventEndpoints
 
         group.MapPost("/create", Create);
         group.MapGet("/getAll", GetAll);
+        group.MapPost("/attachparty", AttachParty);
 
         return app;
     }
@@ -37,27 +39,51 @@ public static class EventEndpoints
     }
 
     private async static Task<IResult> GetAll(
-        IGetAllEvents getAllEvents,
+        IGetAllEventsProcessor getAllEvents,
         UserManager<AppUser> userManager)
     {
         var allEvents = await getAllEvents.Process();
         
-        var finalResult = new List<EventResponse>();
+        return Results.Ok(allEvents);
+    }
 
-        foreach (var event1 in allEvents)
+    private async static Task<IResult> AttachParty(
+        [FromBody] EventPartyDto dto,
+        UserManager<AppUser> userManager,
+        IAddNewEventPartyCombination addNewEventPartyCombination)
+    {
+        var user = await userManager.FindByNameAsync(dto.AssignedByUsername);
+        if (user == null)
         {
-            var user = await userManager.FindByIdAsync(event1.UserId);
-            
-            var username = await userManager.GetUserNameAsync(user);
-            
-            finalResult.Add(new(username, event1.EventTime, event1.Name, event1.EventType));
+            return Results.BadRequest();
         }
         
-        return Results.Ok(finalResult);
+        await addNewEventPartyCombination.Process(MapIntoEventPartyModel(user.Id, dto));
+        
+        return Results.Ok();
     }
 
     private static EventModel MapIntoEventModel(string userId, EventDto eventDto)
     {
-        return new(userId, eventDto.EventTime, eventDto.EventName, eventDto.EventType);
+        return new(eventDto.EventId, userId, eventDto.EventTime, eventDto.EventName, eventDto.EventType);
+    }
+
+    private static EventPartyModel MapIntoEventPartyModel(string userId, EventPartyDto eventPartyDto)
+    {
+        return new(
+            OwnerUserId: userId,
+            Event: new(
+                eventPartyDto.Event.EventId,
+                eventPartyDto.Event.Username, 
+                eventPartyDto.Event.EventTime, 
+                eventPartyDto.Event.EventName, 
+                eventPartyDto.Event.EventType),
+            Slots: eventPartyDto.Slots.Select(MapIntoSlotModel).ToList(),
+            ReplaceExisting: eventPartyDto.ReplaceExisting);
+    }
+
+    private static SlotModel MapIntoSlotModel(SlotDto slotDto)
+    {
+        return new(slotDto.Role, slotDto.UserId, slotDto.Username, slotDto.CharacterName);
     }
 }

@@ -4,5 +4,5 @@ using Shared.DTO;
 
 public interface IGetAllCharacters
 {
-    IReadOnlyDictionary<string, List<CharacterInfo>> Process();
+    IReadOnlyDictionary<string, List<CharacterInfoResponse>> Process();
 }

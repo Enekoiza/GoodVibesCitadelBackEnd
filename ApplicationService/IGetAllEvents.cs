@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Ef;
+﻿namespace ApplicationService;
 
 using Domain.Entities;
 

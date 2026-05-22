@@ -1,5 +1,6 @@
 ﻿namespace Infrastructure.Ef;
 
+using ApplicationService;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 

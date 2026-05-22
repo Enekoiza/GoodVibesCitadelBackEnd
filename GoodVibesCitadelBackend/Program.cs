@@ -75,8 +75,6 @@ builder.Services.AddAuthorization();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddOpenApi();
 
-
-
 var app = builder.Build();
 
 app.UseCors();

@@ -2,6 +2,7 @@
 
 using Domain;
 using Domain.Entities;
+using Infrastructure.Ef;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Models;
@@ -96,7 +97,8 @@ public static class AuthEndpoints
 
     private async static Task<IResult> UpdatePassword(
         UpdatePasswordRequest request,
-        UserManager<AppUser> userManager)
+        UserManager<AppUser> userManager,
+        IUpdatePasswordTemporaryFlag updatePasswordTemporaryFlag)
     {
         var user = await userManager.FindByNameAsync(request.Username);
         
@@ -107,6 +109,8 @@ public static class AuthEndpoints
         {
             return Results.BadRequest(updateResult.Errors);
         }
+
+        await updatePasswordTemporaryFlag.Process(user.Id);
 
         return Results.Ok();
     }

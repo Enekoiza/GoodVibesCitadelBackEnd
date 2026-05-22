@@ -12,7 +12,7 @@ public class EfGetAllCharacters : IGetAllCharacters
         this.db = db;
     }
 
-    public IReadOnlyDictionary<string, List<CharacterInfo>> Process()
+    public IReadOnlyDictionary<string, List<CharacterInfoResponse>> Process()
     {
         return this.db.Characters
             .Include(c => c.User)
@@ -20,7 +20,13 @@ public class EfGetAllCharacters : IGetAllCharacters
             .GroupBy(c => c.User.UserName)
             .ToDictionary(
                 group => group.Key,
-                group => group.Select(c => new CharacterInfo(c.Name, c.Class.Name, c.Class.Type)).ToList()
+                group => group.Select(c => new CharacterInfoResponse(
+                    c.Name,
+                    c.Class.Name,
+                    c.Class.Type,
+                    c.Level,
+                    c.Login,
+                    !string.IsNullOrEmpty(c.Password))).ToList()
             );
     }
 }

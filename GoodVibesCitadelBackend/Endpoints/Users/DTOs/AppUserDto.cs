@@ -7,5 +7,5 @@ public record AppUserDto(
     string UserName,
     string Email,
     IList<string> Roles,
-    IList<CharacterInfo> Characters
+    IList<CharacterInfoResponse> Characters
 );
