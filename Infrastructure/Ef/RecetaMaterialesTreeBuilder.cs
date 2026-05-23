@@ -26,7 +26,7 @@ internal static class RecetaMaterialesTreeBuilder
             ? children.Select(h => MapMaterial(h, hijosPorPadre, nivel + 1)).ToList()
             : [];
 
-        return new RecetaMaterialDto(
+        return new(
             recetaMaterial.Id,
             recetaMaterial.Material?.Nombre,
             recetaMaterial.Material?.ImagenUrl,

@@ -29,7 +29,7 @@ public class EfGetRecetaMateriales(AppDbContext db) : IGetRecetaMateriales
             select new RecetaCraftedItemDto(item.Id, item.Nombre, item.ImagenUrl, item.Grado)
         ).ToListAsync();
 
-        return new RecetaMaterialesResponseDto(
+        return new(
             RecetaMaterialesTreeBuilder.Build(materiales),
             items);
     }
