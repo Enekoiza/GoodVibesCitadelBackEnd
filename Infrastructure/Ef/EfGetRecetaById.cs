@@ -21,7 +21,7 @@ public class EfGetRecetaById(AppDbContext db) : IGetRecetaById
             .OrderBy(m => m.Id)
             .ToListAsync();
 
-        return new RecetaDetailDto(
+        return new(
             receta.Id,
             receta.Nombre,
             receta.ImagenUrl,
