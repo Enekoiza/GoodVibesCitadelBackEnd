@@ -25,7 +25,11 @@ public class AppDbContext : IdentityDbContext<AppUser>
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<Class>().ToTable("class");
-        modelBuilder.Entity<Character>().ToTable("characters");
+        modelBuilder.Entity<Character>(entity =>
+        {
+            entity.ToTable("characters");
+            entity.HasIndex(c => c.Name).IsUnique();
+        });
         modelBuilder.Entity<Composition>().ToTable("composition");
 
         modelBuilder.Entity<Event>(entity =>

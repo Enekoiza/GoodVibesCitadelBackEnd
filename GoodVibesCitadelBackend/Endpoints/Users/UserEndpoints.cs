@@ -100,9 +100,19 @@ public static class UserEndpoints
             return Results.NotFound();
         }
 
-        await updatedCharacterInformation.Process(user.Id, characters);
-        return Results.Ok();
+        var result = await updatedCharacterInformation.Process(user.Id, characters);
+        return MapCharacterUpdateResult(result);
     }
+
+    private static IResult MapCharacterUpdateResult(ErrorOr<Success> result) =>
+        result.Match(
+            _ => Results.Ok(),
+            errors => errors.First().Type switch
+            {
+                ErrorType.Validation => Results.BadRequest(new { message = errors.First().Description }),
+                ErrorType.Conflict => Results.Conflict(new { message = errors.First().Description }),
+                _ => Results.Problem(errors.First().Description),
+            });
 
     private async static Task<IResult> GetMyCharacterPassword(
         string characterName,
@@ -219,9 +229,9 @@ public static class UserEndpoints
             return Results.BadRequest();
         }
 
-        await updatedCharacterInformation.Process(user.Id, dto.Characters);
-        
-        return Results.Ok();
+        var result = await updatedCharacterInformation.Process(user.Id, dto.Characters);
+
+        return MapCharacterUpdateResult(result);
     }
 
     private async static Task<IResult> DeleteSingle(

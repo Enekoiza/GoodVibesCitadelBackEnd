@@ -20,7 +20,19 @@ public class EfUpdateCharacterInformation : IUpdatedCharacterInformation
     {
         try
         {
-            var characterInfoNames = characterInfos.Select(ci => ci.Name).ToHashSet();
+            var duplicateNameInRequest = characterInfos
+                .GroupBy(ci => ci.Name, StringComparer.OrdinalIgnoreCase)
+                .FirstOrDefault(group => group.Count() > 1)
+                ?.Key;
+
+            if (duplicateNameInRequest is not null)
+            {
+                return Error.Conflict(
+                    CharacterNameConflict.Code,
+                    CharacterNameConflict.Message("otro personaje de la misma lista"));
+            }
+
+            var characterInfoNames = characterInfos.Select(ci => ci.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             var charactersToDelete = this.db.Characters
                 .Where(c => c.Userid == userId && !characterInfoNames.Contains(c.Name));
@@ -39,6 +51,19 @@ public class EfUpdateCharacterInformation : IUpdatedCharacterInformation
 
                 if (character is null)
                 {
+                    var ownerUsername = await this.db.Characters
+                        .AsNoTracking()
+                        .Where(c => c.Name == characterInfo.Name && c.Userid != userId)
+                        .Select(c => c.User!.UserName)
+                        .FirstOrDefaultAsync();
+
+                    if (!string.IsNullOrWhiteSpace(ownerUsername))
+                    {
+                        return Error.Conflict(
+                            CharacterNameConflict.Code,
+                            CharacterNameConflict.Message(ownerUsername));
+                    }
+
                     var newCharacter = new Character
                     {
                         Name = characterInfo.Name,
@@ -58,11 +83,6 @@ public class EfUpdateCharacterInformation : IUpdatedCharacterInformation
                 }
                 else
                 {
-                    if (character.Userid != userId)
-                    {
-                        character.Userid = userId;
-                    }
-
                     character.Classid = classId;
                     character.Level = characterInfo.Level;
                     character.Login = login;
@@ -71,6 +91,12 @@ public class EfUpdateCharacterInformation : IUpdatedCharacterInformation
             }
 
             await this.db.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            return Error.Conflict(
+                CharacterNameConflict.Code,
+                "El nombre de personaje ya está registrado por otro usuario.");
         }
         catch (Exception)
         {
