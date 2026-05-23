@@ -36,7 +36,12 @@ public static class DependencyInjection
         services.AddScoped<IGetAllPartyCompositions, EfGetAllPartyCompositions>();
         services.AddScoped<ICompositionValidation, CompositionValidation>();
         services.AddScoped<IAddNewEventPartyCombination, EfAddNewEventPartyCombination>();
+        services.AddScoped<IUpdateEventDrops, EfUpdateEventDrops>();
         services.AddScoped<IGetAllEventsProcessor, GetAllEventsProcessor>();
+        services.AddScoped<ISearchRecetas, EfSearchRecetas>();
+        services.AddScoped<IGetRecetaById, EfGetRecetaById>();
+        services.AddScoped<IGetRecetaMateriales, EfGetRecetaMateriales>();
+        services.AddScoped<ILookupItemsByNames, EfLookupItemsByNames>();
 
         services.AddIdentity<AppUser, IdentityRole>(options =>
             {

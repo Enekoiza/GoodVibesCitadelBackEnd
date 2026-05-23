@@ -2,7 +2,9 @@
 
 using Auth;
 using Events;
+using Items;
 using PartyBuilder;
+using Recetas;
 using Roles;
 using Users;
 
@@ -15,6 +17,8 @@ public static class AllEndpoints
         app.MapRoleEndpoints();
         app.MapEventEndpoints();
         app.MapPartyBuilderEndpoints();
+        app.MapRecetaEndpoints();
+        app.MapItemEndpoints();
 
         return app;
     }
