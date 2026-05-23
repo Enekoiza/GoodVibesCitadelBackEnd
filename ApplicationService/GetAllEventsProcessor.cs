@@ -25,7 +25,8 @@ public class GetAllEventsProcessor(IGetAllEvents getAllEvents, UserManager<AppUs
                         evento.EventTime,
                         evento.Name,
                         evento.EventType,
-                        [])
+                        [],
+                        MapDropsToDto(evento.Drops))
                 );
             }
             else
@@ -36,7 +37,9 @@ public class GetAllEventsProcessor(IGetAllEvents getAllEvents, UserManager<AppUs
                         evento.EventTime,
                         evento.Name,
                         evento.EventType,
-                        evento.PartyComposition.Select(MapCompositionToDto)));
+                        evento.PartyComposition.Select(MapCompositionToDto),
+                        MapDropsToDto(evento.Drops))
+                );
             }
         }
         
@@ -53,5 +56,15 @@ public class GetAllEventsProcessor(IGetAllEvents getAllEvents, UserManager<AppUs
     private static SlotDto MapSlotToDto(SlotEntity slotEntity)
     {
         return new(slotEntity.Role, string.Empty, slotEntity.Username, slotEntity.CharacterName);
+    }
+
+    private static IEnumerable<EventDropDto> MapDropsToDto(List<EventDropEntity>? drops)
+    {
+        if (drops is null || drops.Count == 0)
+        {
+            return [];
+        }
+
+        return drops.Select(drop => new EventDropDto(drop.Name, drop.Quantity));
     }
 }

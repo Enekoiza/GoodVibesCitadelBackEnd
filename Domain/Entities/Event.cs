@@ -17,4 +17,6 @@ public class Event
     public virtual AppUser User { get; set; } = null!;
     
     public List<PartyCompositionEntity>? PartyComposition { get; set; }
+
+    public List<EventDropEntity>? Drops { get; set; }
 }

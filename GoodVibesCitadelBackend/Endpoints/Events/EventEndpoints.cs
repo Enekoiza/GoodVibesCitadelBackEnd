@@ -18,6 +18,7 @@ public static class EventEndpoints
         group.MapPost("/create", Create);
         group.MapGet("/getAll", GetAll);
         group.MapPost("/attachparty", AttachParty);
+        group.MapPost("/updatedrops", UpdateDrops);
 
         return app;
     }
@@ -63,6 +64,24 @@ public static class EventEndpoints
         return Results.Ok();
     }
 
+    private async static Task<IResult> UpdateDrops(
+        [FromBody] EventDropsDto dto,
+        IUpdateEventDrops updateEventDrops)
+    {
+        if (string.IsNullOrWhiteSpace(dto.EventId))
+        {
+            return Results.BadRequest("EventId es obligatorio.");
+        }
+
+        if (dto.Drops.Any(drop => string.IsNullOrWhiteSpace(drop.Name) || drop.Quantity <= 0))
+        {
+            return Results.BadRequest("Cada material debe tener nombre y cantidad mayor que cero.");
+        }
+
+        var result = await updateEventDrops.Process(MapIntoEventDropsModel(dto));
+        return result.IsError ? Results.NotFound(result.FirstError.Description) : Results.Ok();
+    }
+
     private static EventModel MapIntoEventModel(string userId, EventDto eventDto)
     {
         return new(eventDto.EventId, userId, eventDto.EventTime, eventDto.EventName, eventDto.EventType);
@@ -74,9 +93,9 @@ public static class EventEndpoints
             OwnerUserId: userId,
             Event: new(
                 eventPartyDto.Event.EventId,
-                eventPartyDto.Event.Username, 
-                eventPartyDto.Event.EventTime, 
-                eventPartyDto.Event.EventName, 
+                string.Empty,
+                eventPartyDto.Event.EventTime,
+                eventPartyDto.Event.EventName,
                 eventPartyDto.Event.EventType),
             Slots: eventPartyDto.Slots.Select(MapIntoSlotModel).ToList(),
             ReplaceExisting: eventPartyDto.ReplaceExisting);
@@ -85,5 +104,12 @@ public static class EventEndpoints
     private static SlotModel MapIntoSlotModel(SlotDto slotDto)
     {
         return new(slotDto.Role, slotDto.UserId, slotDto.Username, slotDto.CharacterName);
+    }
+
+    private static EventDropsModel MapIntoEventDropsModel(EventDropsDto dto)
+    {
+        return new(
+            dto.EventId,
+            dto.Drops.Select(drop => new EventDropModel(drop.Name, drop.Quantity)).ToList());
     }
 }
