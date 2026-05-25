@@ -7,6 +7,7 @@ using PartyBuilder;
 using Recetas;
 using Roles;
 using Users;
+using Warehouse;
 
 public static class AllEndpoints
 {
@@ -19,6 +20,7 @@ public static class AllEndpoints
         app.MapPartyBuilderEndpoints();
         app.MapRecetaEndpoints();
         app.MapItemEndpoints();
+        app.MapWarehouseEndpoints();
 
         return app;
     }

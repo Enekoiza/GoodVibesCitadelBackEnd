@@ -30,6 +30,8 @@ public class AppDbContext : IdentityDbContext<AppUser>
 
     public DbSet<Material> Materiales { get; set; }
 
+    public DbSet<CpWarehouseEntry> CpWarehouseEntries { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -133,6 +135,19 @@ public class AppDbContext : IdentityDbContext<AppUser>
                 .WithMany(m => m.Hijos)
                 .HasForeignKey(e => e.ParentId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<CpWarehouseEntry>(entity =>
+        {
+            entity.ToTable("cp_warehouse");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.EntryType).HasConversion<int>();
+            entity.Property(e => e.EntityId).HasColumnName("entity_id");
+            entity.Property(e => e.Quantity);
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+
+            entity.HasIndex(e => new { e.EntryType, e.EntityId }).IsUnique();
         });
     }
 }
