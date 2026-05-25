@@ -4,21 +4,27 @@ using ApplicationService;
 using Domain.Dto;
 using Domain.Entities;
 using Domain.Models;
+using ErrorOr;
 using Infrastructure.Ef;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Shared.DTO;
+using System.Security.Claims;
 
 public static class EventEndpoints
 {
     public static IEndpointRouteBuilder MapEventEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/event")
-            .WithTags("Users");
+            .WithTags("Users")
+            .RequireAuthorization();
 
         group.MapPost("/create", Create);
         group.MapGet("/getAll", GetAll);
         group.MapPost("/attachparty", AttachParty);
         group.MapPost("/updatedrops", UpdateDrops);
+        group.MapGet("/{eventId}/borrowed-characters", GetBorrowedCharacterCredentials);
+        group.MapGet("/{eventId}/borrowed-characters/{characterName}/password", GetBorrowedCharacterPassword);
 
         return app;
     }
@@ -111,5 +117,63 @@ public static class EventEndpoints
         return new(
             dto.EventId,
             dto.Drops.Select(drop => new EventDropModel(drop.Name, drop.Quantity)).ToList());
+    }
+
+    private static Task<IResult> GetBorrowedCharacterCredentials(
+        string eventId,
+        ClaimsPrincipal principal,
+        IGetBorrowedEventCharacterCredentials getBorrowedEventCharacterCredentials)
+    {
+        var username = principal.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            return Task.FromResult(Results.Unauthorized());
+        }
+
+        return MapBorrowedCredentialsResult(getBorrowedEventCharacterCredentials.GetCredentials(eventId, username));
+    }
+
+    private static Task<IResult> GetBorrowedCharacterPassword(
+        string eventId,
+        string characterName,
+        ClaimsPrincipal principal,
+        IGetBorrowedEventCharacterCredentials getBorrowedEventCharacterCredentials)
+    {
+        var username = principal.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            return Task.FromResult(Results.Unauthorized());
+        }
+
+        return MapBorrowedPasswordResult(
+            getBorrowedEventCharacterCredentials.GetPassword(eventId, username, characterName));
+    }
+
+    private static async Task<IResult> MapBorrowedCredentialsResult(
+        Task<ErrorOr<BorrowedCharacterCredentialsResponseDto>> task)
+    {
+        var result = await task;
+        return result.Match(
+            credentials => Results.Ok(credentials),
+            errors => errors.First().Type switch
+            {
+                ErrorType.NotFound => Results.NotFound(new { message = errors.First().Description }),
+                _ => Results.Problem(errors.First().Description),
+            });
+    }
+
+    private static async Task<IResult> MapBorrowedPasswordResult(Task<ErrorOr<string>> task)
+    {
+        var result = await task;
+        return result.Match(
+            password => Results.Ok(new CharacterPasswordRevealDto(password)),
+            errors => errors.First().Type switch
+            {
+                ErrorType.NotFound => Results.NotFound(new { message = errors.First().Description }),
+                ErrorType.Forbidden => Results.Forbid(),
+                ErrorType.Validation => Results.BadRequest(new { message = errors.First().Description }),
+                ErrorType.Conflict => Results.Conflict(new { message = errors.First().Description }),
+                _ => Results.Problem(errors.First().Description),
+            });
     }
 }
