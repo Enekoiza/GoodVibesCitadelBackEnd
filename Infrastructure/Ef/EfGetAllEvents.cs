@@ -15,8 +15,10 @@ public class EfGetAllEvents : IGetAllEvents
 
     public async Task<List<Event>> Process()
     {
-        var eventList = await this.db.Events.ToListAsync();
-        
-        return eventList;
+        var cutoff = DateTime.UtcNow.AddMonths(-2);
+
+        return await this.db.Events
+            .Where(e => e.EventTime >= cutoff)
+            .ToListAsync();
     }
 }
